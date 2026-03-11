@@ -1,0 +1,24 @@
+# 社区志愿者管理系统依赖包
+# Community Volunteer Management System Dependencies
+
+# Web框架
+Flask==3.1.2
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.3
+Flask-WTF==1.2.2
+
+# 数据库
+SQLAlchemy==2.0.43
+
+# 安全
+Werkzeug==3.1.3
+WTForms==3.2.1
+
+# 工具库
+python-dotenv==1.1.1
+qrcode==7.4.2
+Pillow==11.3.0
+
+# 开发工具
+pytest==8.3.4
+pytest-flask==1.3.0

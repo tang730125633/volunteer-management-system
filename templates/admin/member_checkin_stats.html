@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}成员签到率统计 - 社区志愿者管理系统{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="fas fa-chart-line me-2"></i>成员签到率统计
+    </h2>
+    <div>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary btn-rounded">
+            <i class="fas fa-arrow-left me-2"></i>返回仪表板
+        </a>
+    </div>
+</div>
+
+<!-- 概览卡片 -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                <h4 class="card-title">{{ member_stats|length }}</h4>
+                <p class="card-text">志愿者总数</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-calendar-check fa-2x text-success mb-2"></i>
+                <h4 class="card-title">{{ total_activities }}</h4>
+                <p class="card-text">已发布活动</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-percentage fa-2x text-info mb-2"></i>
+                <h4 class="card-title">
+                    {% set total_rate = member_stats | map(attribute='checkin_rate') | sum %}
+                    {% if member_stats|length > 0 %}
+                        {{ (total_rate / member_stats|length) | round(1) }}%
+                    {% else %}
+                        0%
+                    {% endif %}
+                </h4>
+                <p class="card-text">平均签到率</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 签到率列表 -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-list-alt me-2"></i>成员签到详情
+        </h5>
+        <div class="d-flex align-items-center">
+            <span class="text-muted me-3">
+                <i class="fas fa-sort-amount-down me-1"></i>按签到率排序
+            </span>
+            <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="搜索成员..." style="width: 200px;">
+        </div>
+    </div>
+    <div class="card-body">
+        {% if member_stats %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle" id="memberTable">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">排名</th>
+                        <th>成员信息</th>
+                        <th>报名信息</th>
+                        <th style="width: 200px;">签到率</th>
+                        <th style="width: 120px;">状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in member_stats %}
+                    <tr class="member-row" data-username="{{ stat.user.username }}" data-realname="{{ stat.user.real_name or '' }}">
+                        <td>
+                            {% if loop.index <= 3 %}
+                                <span class="badge bg-{{ 'warning' if loop.index == 1 else 'secondary' if loop.index == 2 else 'danger' }} fs-6">
+                                    {{ loop.index }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">{{ loop.index }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-circle me-3" style="width: 40px; height: 40px; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                                    {{ stat.user.username[0]|upper }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ stat.user.username }}</div>
+                                    <div class="text-muted small">
+                                        {{ stat.user.real_name or '未填写真实姓名' }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="small">
+                                <span class="text-primary">{{ stat.registered_count }}</span> 次报名
+                                <span class="mx-1">|</span>
+                                <span class="text-success">{{ stat.checkin_count }}</span> 次签到
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="progress flex-grow-1 me-2" style="height: 20px;">
+                                    <div class="progress-bar bg-{{ 'success' if stat.checkin_rate >= 80 else 'warning' if stat.checkin_rate >= 50 else 'danger' }}"
+                                         role="progressbar"
+                                         style="width: {{ stat.checkin_rate }}%"
+                                         aria-valuenow="{{ stat.checkin_rate }}"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
+                                <span class="fw-bold" style="min-width: 50px;">{{ stat.checkin_rate }}%</span>
+                            </div>
+                        </td>
+                        <td>
+                            {% if stat.checkin_rate >= 80 %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check-circle me-1"></i>优秀
+                                </span>
+                            {% elif stat.checkin_rate >= 50 %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-exclamation-circle me-1"></i>良好
+                                </span>
+                            {% elif stat.registered_count > 0 %}
+                                <span class="badge bg-danger">
+                                    <i class="fas fa-times-circle me-1"></i>需改进
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary">
+                                    <i class="fas fa-minus-circle me-1"></i>未参与
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-users-slash fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">暂无志愿者数据</h5>
+            <p class="text-muted">请先注册志愿者账号或发布活动</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 签到率说明 -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-info-circle me-2"></i>签到率说明
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="badge bg-success me-2">优秀</span>
+                    <span>签到率 ≥ 80%</span>
+                </div>
+                <p class="text-muted small">该志愿者参与积极，签到率高，值得信赖。</p>
+            </div>
+            <div class="col-md-4">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="badge bg-warning text-dark me-2">良好</span>
+                    <span>签到率 50% - 79%</span>
+                </div>
+                <p class="text-muted small">该志愿者参与度一般，可以适当关注。</p>
+            </div>
+            <div class="col-md-4">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="badge bg-danger me-2">需改进</span>
+                    <span>签到率 < 50%</span>
+                </div>
+                <p class="text-muted small">该志愿者报名后经常缺席，需要沟通了解原因。</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 搜索功能
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        var searchValue = this.value.toLowerCase();
+        var rows = document.querySelectorAll('.member-row');
+
+        rows.forEach(function(row) {
+            var username = row.getAttribute('data-username').toLowerCase();
+            var realName = row.getAttribute('data-realname').toLowerCase();
+
+            if (username.includes(searchValue) || realName.includes(searchValue)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

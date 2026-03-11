@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}{{ activity.title }} - 社区志愿者管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">{{ activity.title }}</h3>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <i class="fas fa-calendar me-2"></i>
+                            <strong>开始时间：</strong>{{ activity.start_time.strftime('%Y年%m月%d日 %H:%M') }}
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-calendar me-2"></i>
+                            <strong>结束时间：</strong>{{ activity.end_time.strftime('%Y年%m月%d日 %H:%M') }}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            <strong>活动地点：</strong>{{ activity.location }}
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-users me-2"></i>
+                            <strong>参与人数：</strong>{{ activity.current_participants }}/{{ activity.max_participants if activity.max_participants > 0 else '不限' }} 人
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h5>活动描述</h5>
+                    <p class="text-muted">{{ activity.description or '暂无描述' }}</p>
+                </div>
+                
+                {% if activity.requirements %}
+                    <div class="mb-4">
+                        <h5>参与要求</h5>
+                        <p class="text-muted">{{ activity.requirements }}</p>
+                    </div>
+                {% endif %}
+                
+                <!-- 报名按钮 -->
+                {% if current_user.is_authenticated %}
+                    {% if is_registered %}
+                        {% if user_checkin %}
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-double me-2"></i>您已报名并已签到
+                                <small class="text-muted d-block mt-1">
+                                    签到时间: {{ user_checkin.checkin_time.strftime('%Y-%m-%d %H:%M') }}
+                                </small>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-check-circle me-2"></i>您已报名此活动
+                            </div>
+                            <!-- 显示签到时间状态 -->
+                            {% set checkin_status = activity.get_checkin_status() %}
+                            <div class="alert alert-{{ 'success' if checkin_status[0] == '签到开放中' else 'warning' }}">
+                                <i class="fas fa-clock me-2"></i>{{ checkin_status[0] }}
+                                <small class="d-block mt-1">{{ checkin_status[1] }}</small>
+                            </div>
+                        {% endif %}
+
+                        {% if activity.is_upcoming() %}
+                            <form method="POST" action="{{ url_for('cancel_activity', activity_id=activity.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-warning btn-rounded"
+                                        onclick="return confirm('确定要取消报名吗？')">
+                                    <i class="fas fa-times me-2"></i>取消报名
+                                </button>
+                            </form>
+                        {% endif %}
+
+                        <!-- 签到按钮（只在签到时间窗口内显示） -->
+                        {% if not user_checkin and activity.can_checkin(checkin_before_minutes=10) %}
+                            <a href="{{ url_for('qr_checkin', activity_id=activity.id) }}" class="btn btn-success btn-rounded">
+                                <i class="fas fa-qrcode me-2"></i>立即签到
+                            </a>
+                        {% endif %}
+
+                        {% if activity.is_ended() %}
+                            {% if user_checkin %}
+                                <div class="alert alert-success">
+                                    <i class="fas fa-award me-2"></i>活动已结束,您已完成签到
+                                </div>
+                            {% else %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-circle me-2"></i>活动已结束,您未签到
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    {% else %}
+                        {% if activity.can_register() %}
+                            <form method="POST" action="{{ url_for('register_activity', activity_id=activity.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-primary btn-rounded">
+                                    <i class="fas fa-user-plus me-2"></i>立即报名
+                                </button>
+                            </form>
+                        {% else %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                {% if not activity.is_published() %}
+                                    活动尚未发布
+                                {% elif not activity.is_upcoming() %}
+                                    活动已开始或结束
+                                {% elif activity.max_participants > 0 and activity.current_participants >= activity.max_participants %}
+                                    活动人数已满
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        请先登录以报名参加活动
+                        <a href="{{ url_for('login') }}" class="btn btn-primary btn-sm btn-rounded ms-2">立即登录</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- 活动信息卡片 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">活动信息</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>活动状态：</strong>
+                    <span class="badge bg-{{ 'success' if activity.status == 'published' else 'secondary' }}">
+                        {{ activity.status }}
+                    </span>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>组织者：</strong>{{ activity.organizer.username }}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>创建时间：</strong>{{ activity.created_at.strftime('%Y年%m月%d日') }}
+                </div>
+                
+                {% if activity.published_at %}
+                    <div class="mb-3">
+                        <strong>发布时间：</strong>{{ activity.published_at.strftime('%Y年%m月%d日') }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- 参与者列表 -->
+        {% if participants %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">参与者列表 ({{ participants|length }}人)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for participant in participants %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ participant.user.real_name or participant.user.username }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ participant.user.username }}</small>
+                                </div>
+                                <small class="text-muted">
+                                    {{ participant.registered_at.strftime('%m-%d %H:%M') }}
+                                </small>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

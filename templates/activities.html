@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}活动列表 - 社区志愿者管理系统{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="fas fa-calendar-alt me-2"></i>活动列表
+    </h2>
+    
+    <!-- 状态筛选 -->
+    <div class="btn-group" role="group">
+        <a href="{{ url_for('activities', status='all') }}" 
+           class="btn btn-outline-primary {{ 'active' if current_status == 'all' else '' }}">
+            全部
+        </a>
+        <a href="{{ url_for('activities', status='published') }}" 
+           class="btn btn-outline-primary {{ 'active' if current_status == 'published' else '' }}">
+            已发布
+        </a>
+        <a href="{{ url_for('activities', status='draft') }}" 
+           class="btn btn-outline-primary {{ 'active' if current_status == 'draft' else '' }}">
+            草稿
+        </a>
+    </div>
+</div>
+
+{% if activities.items %}
+    <div class="row">
+        {% for activity in activities.items %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ activity.title }}</h5>
+                        <p class="card-text text-muted">
+                            {{ activity.description[:100] }}{% if activity.description|length > 100 %}...{% endif %}
+                        </p>
+                        
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    {{ activity.start_time.strftime('%Y-%m-%d') }}
+                                </small>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">
+                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                    {{ activity.location }}
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-{{ 'success' if activity.status == 'published' else 'secondary' }}">
+                                {{ activity.status }}
+                            </span>
+                            <span class="badge bg-primary">
+                                {{ activity.current_participants }}/{{ activity.max_participants }} 人
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ url_for('activity_detail', activity_id=activity.id) }}" 
+                           class="btn btn-outline-primary btn-sm w-100">
+                            查看详情
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <!-- 分页 -->
+    {% if activities.pages > 1 %}
+        <nav aria-label="活动分页">
+            <ul class="pagination justify-content-center">
+                {% if activities.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('activities', page=activities.prev_num, status=current_status) }}">
+                            上一页
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% for page_num in activities.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != activities.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('activities', page=page_num, status=current_status) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if activities.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('activities', page=activities.next_num, status=current_status) }}">
+                            下一页
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">暂无活动</h4>
+        <p class="text-muted">请稍后再来查看最新的志愿服务活动</p>
+    </div>
+{% endif %}
+{% endblock %}

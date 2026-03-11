@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}关于我们 - 社区志愿者管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>关于我们
+                </h2>
+            </div>
+            <div class="card-body">
+                <h4>系统简介</h4>
+                <p class="lead">
+                    社区志愿者管理系统是一个基于Web的志愿服务管理平台，旨在为社区志愿服务提供高效、便捷的管理和协调服务。
+                </p>
+                
+                <h4 class="mt-4">主要功能</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>活动发布与管理</li>
+                            <li><i class="fas fa-check text-success me-2"></i>志愿者注册与认证</li>
+                            <li><i class="fas fa-check text-success me-2"></i>在线报名与取消</li>
+                            <li><i class="fas fa-check text-success me-2"></i>二维码智能签到</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>数据统计与分析</li>
+                            <li><i class="fas fa-check text-success me-2"></i>用户权限管理</li>
+                            <li><i class="fas fa-check text-success me-2"></i>移动端适配</li>
+                            <li><i class="fas fa-check text-success me-2"></i>实时消息通知</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h4 class="mt-4">技术特点</h4>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="fas fa-code fa-2x text-primary mb-2"></i>
+                                <h6>现代化技术栈</h6>
+                                <p class="small text-muted">Flask + SQLAlchemy + Bootstrap</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="fas fa-shield-alt fa-2x text-success mb-2"></i>
+                                <h6>安全可靠</h6>
+                                <p class="small text-muted">密码加密 + 权限控制</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="fas fa-mobile-alt fa-2x text-info mb-2"></i>
+                                <h6>响应式设计</h6>
+                                <p class="small text-muted">支持各种设备访问</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h4 class="mt-4">联系我们</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p>
+                            <i class="fas fa-envelope me-2"></i>
+                            <strong>邮箱：</strong>contact@volunteer-system.com
+                        </p>
+                        <p>
+                            <i class="fas fa-phone me-2"></i>
+                            <strong>电话：</strong>400-123-4567
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            <strong>地址：</strong>北京市朝阳区xxx街道
+                        </p>
+                        <p>
+                            <i class="fas fa-clock me-2"></i>
+                            <strong>工作时间：</strong>周一至周五 9:00-18:00
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-4">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    <strong>提示：</strong>如果您在使用过程中遇到任何问题，请及时联系我们的技术支持团队。
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

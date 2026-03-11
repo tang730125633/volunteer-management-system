@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}社区志愿者管理系统{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border: 1px solid rgba(0, 0, 0, 0.125);
+        }
+        .alert {
+            border-radius: 0.375rem;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+        
+        /* 高颜值按钮样式库 */
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 主按钮：绿色渐变 */
+        .btn-primary {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            box-shadow: 0 4px 10px rgba(67, 233, 123, 0.4);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(67, 233, 123, 0.5);
+            color: #fff;
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        .btn-primary:focus {
+            box-shadow: 0 0 0 0.2rem rgba(67, 233, 123, 0.5);
+        }
+        
+        /* 次要按钮：白色边框 */
+        .btn-secondary, .btn-outline-primary {
+            background: transparent;
+            color: #38f9d7;
+            border: 2px solid #38f9d7;
+        }
+        .btn-secondary:hover, .btn-outline-primary:hover {
+            background: #38f9d7;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .btn-secondary:focus, .btn-outline-primary:focus {
+            box-shadow: 0 0 0 0.2rem rgba(56, 249, 215, 0.5);
+        }
+        
+        /* 功能按钮：红色渐变 */
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+            box-shadow: 0 4px 10px rgba(255, 107, 107, 0.4);
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255, 107, 107, 0.5);
+        }
+        .btn-danger:active {
+            transform: translateY(0);
+        }
+        .btn-danger:focus {
+            box-shadow: 0 0 0 0.2rem rgba(255, 107, 107, 0.5);
+        }
+        
+        /* 警告按钮：橙色渐变 */
+        .btn-warning {
+            background: linear-gradient(135deg, #ffa726 0%, #ffb74d 100%);
+            box-shadow: 0 4px 10px rgba(255, 167, 38, 0.4);
+            color: #fff;
+        }
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255, 167, 38, 0.5);
+            color: #fff;
+        }
+        .btn-warning:active {
+            transform: translateY(0);
+        }
+        .btn-warning:focus {
+            box-shadow: 0 0 0 0.2rem rgba(255, 167, 38, 0.5);
+        }
+        
+        /* 信息按钮：蓝色渐变 */
+        .btn-info {
+            background: linear-gradient(135deg, #42a5f5 0%, #64b5f6 100%);
+            box-shadow: 0 4px 10px rgba(66, 165, 245, 0.4);
+        }
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(66, 165, 245, 0.5);
+        }
+        .btn-info:active {
+            transform: translateY(0);
+        }
+        .btn-info:focus {
+            box-shadow: 0 0 0 0.2rem rgba(66, 165, 245, 0.5);
+        }
+        
+        /* 成功按钮：深绿色渐变 */
+        .btn-success {
+            background: linear-gradient(135deg, #66bb6a 0%, #81c784 100%);
+            box-shadow: 0 4px 10px rgba(102, 187, 106, 0.4);
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 187, 106, 0.5);
+        }
+        .btn-success:active {
+            transform: translateY(0);
+        }
+        .btn-success:focus {
+            box-shadow: 0 0 0 0.2rem rgba(102, 187, 106, 0.5);
+        }
+        
+        /* 小尺寸按钮 */
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        /* 大尺寸按钮 */
+        .btn-lg {
+            padding: 14px 28px;
+            font-size: 16px;
+        }
+        
+        /* 圆润按钮 */
+        .btn-rounded {
+            border-radius: 20px;
+        }
+        
+        /* 按钮组样式优化 */
+        .btn-group .btn {
+            border-radius: 0;
+        }
+        .btn-group .btn:first-child {
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+        .btn-group .btn:last-child {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+        
+        /* 分页按钮样式 */
+        .page-link {
+            border-radius: 8px;
+            margin: 0 2px;
+            border: 1px solid #dee2e6;
+            color: #38f9d7;
+        }
+        .page-link:hover {
+            background-color: #38f9d7;
+            border-color: #38f9d7;
+            color: #fff;
+        }
+        .page-item.active .page-link {
+            background-color: #38f9d7;
+            border-color: #38f9d7;
+        }
+        
+        /* 徽章样式优化 */
+        .badge {
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        /* 卡片悬停效果 */
+        .card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 表单输入框样式优化 */
+        .form-control {
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #38f9d7;
+            box-shadow: 0 0 0 0.2rem rgba(56, 249, 215, 0.25);
+        }
+        
+        /* 导航栏样式优化 */
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .nav-link {
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover {
+            color: #38f9d7 !important;
+        }
+        
+        /* 徽章颜色优化 */
+        .badge.bg-primary {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%) !important;
+        }
+        .badge.bg-success {
+            background: linear-gradient(135deg, #66bb6a 0%, #81c784 100%) !important;
+        }
+        .badge.bg-info {
+            background: linear-gradient(135deg, #42a5f5 0%, #64b5f6 100%) !important;
+        }
+        .badge.bg-warning {
+            background: linear-gradient(135deg, #ffa726 0%, #ffb74d 100%) !important;
+        }
+        
+        /* 下拉菜单样式优化 */
+        .dropdown-menu {
+            border-radius: 8px;
+            border: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        .dropdown-item {
+            transition: all 0.2s ease;
+        }
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #38f9d7;
+        }
+        
+        /* 警告框样式优化 */
+        .alert {
+            border: none;
+            border-radius: 8px;
+        }
+        .alert-info {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            color: #1565c0;
+        }
+        .alert-warning {
+            background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%);
+            color: #e65100;
+        }
+        .alert-success {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%);
+            color: #2e7d32;
+        }
+        .alert-danger {
+            background: linear-gradient(135deg, #ffebee 0%, #fce4ec 100%);
+            color: #c62828;
+        }
+        
+        /* 列表组样式优化 */
+        .list-group-item {
+            border-radius: 8px;
+            margin-bottom: 4px;
+            border: 1px solid #e9ecef;
+            transition: all 0.2s ease;
+        }
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(4px);
+        }
+        
+        /* 表格样式优化 */
+        .table {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .table thead th {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+        .table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* 页脚样式优化 */
+        .footer {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-top: 1px solid #dee2e6;
+        }
+        
+        /* 响应式优化 */
+        @media (max-width: 768px) {
+            .btn {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+            .btn-lg {
+                padding: 12px 24px;
+                font-size: 15px;
+            }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-hands-helping me-2"></i>
+                社区志愿者管理系统
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="fas fa-home me-1"></i>首页
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('activities') }}">
+                            <i class="fas fa-calendar-alt me-1"></i>活动列表
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('about') }}">
+                            <i class="fas fa-info-circle me-1"></i>关于我们
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.is_admin() %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-cog me-1"></i>管理
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{{ url_for('admin_dashboard') }}">
+                                        <i class="fas fa-tachometer-alt me-2"></i>仪表板
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('admin_activities') }}">
+                                        <i class="fas fa-calendar me-2"></i>活动管理
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('statistics') }}">
+                                        <i class="fas fa-chart-bar me-2"></i>统计报表
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('member_checkin_stats') }}">
+                                        <i class="fas fa-chart-line me-2"></i>成员签到率
+                                    </a></li>
+                                </ul>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user me-1"></i>{{ current_user.username }}
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">
+                                    <i class="fas fa-user-circle me-2"></i>个人资料
+                                </a></li>
+                                <li><a class="dropdown-item" href="#">
+                                    <i class="fas fa-history me-2"></i>我的活动
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>退出登录
+                                </a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('login') }}">
+                                <i class="fas fa-sign-in-alt me-1"></i>登录
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('register') }}">
+                                <i class="fas fa-user-plus me-1"></i>注册
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <main class="container my-4">
+        <!-- 消息提示 -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>社区志愿者管理系统</h5>
+                    <p class="text-muted">致力于社区志愿服务的管理和协调</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted">
+                        <i class="fas fa-envelope me-1"></i>
+                        contact@volunteer-system.com
+                    </p>
+                    <p class="text-muted">
+                        <i class="fas fa-phone me-1"></i>
+                        400-123-4567
+                    </p>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="text-muted mb-0">
+                        &copy; 2025 社区志愿者管理系统. 保留所有权利.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}统计报表 - 社区志愿者管理系统{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="fas fa-chart-bar me-2"></i>统计报表
+    </h2>
+    <div>
+        <button class="btn btn-outline-primary btn-rounded" onclick="refreshData()">
+            <i class="fas fa-sync-alt me-2"></i>刷新数据
+        </button>
+    </div>
+</div>
+
+<!-- 统计卡片 -->
+<div class="row mb-4" id="statsCards">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                <h4 class="card-title" id="total-users">-</h4>
+                <p class="card-text">注册用户</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-calendar fa-2x text-success mb-2"></i>
+                <h4 class="card-title" id="total-activities">-</h4>
+                <p class="card-text">活动总数</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-user-check fa-2x text-info mb-2"></i>
+                <h4 class="card-title" id="total-registrations">-</h4>
+                <p class="card-text">报名总数</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-qrcode fa-2x text-warning mb-2"></i>
+                <h4 class="card-title" id="total-checkins">-</h4>
+                <p class="card-text">签到总数</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 活动统计表格 -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-table me-2"></i>活动统计详情
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="activityStatsTable">
+                        <thead>
+                            <tr>
+                                <th>活动ID</th>
+                                <th>活动标题</th>
+                                <th>参与人数</th>
+                                <th>签到人数</th>
+                                <th>签到率</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activityStatsBody">
+                            <tr>
+                                <td colspan="5" class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">加载中...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 加载统计数据
+function loadStatistics() {
+    fetch('/api/statistics')
+        .then(response => response.json())
+        .then(data => {
+            // 更新统计卡片
+            document.getElementById('total-users').textContent = data.total_users || 0;
+            document.getElementById('total-activities').textContent = data.total_activities || 0;
+            document.getElementById('total-registrations').textContent = data.total_registrations || 0;
+            document.getElementById('total-checkins').textContent = data.total_checkins || 0;
+            
+            // 更新活动统计表格
+            const tbody = document.getElementById('activityStatsBody');
+            if (data.activity_stats && data.activity_stats.length > 0) {
+                tbody.innerHTML = data.activity_stats.map(stat => `
+                    <tr>
+                        <td>${stat.id}</td>
+                        <td>${stat.title}</td>
+                        <td>${stat.participants}</td>
+                        <td>${stat.checkins}</td>
+                        <td>
+                            <span class="badge bg-${stat.participants > 0 ? (stat.checkins / stat.participants >= 0.8 ? 'success' : 'warning') : 'secondary'}">
+                                ${stat.participants > 0 ? Math.round(stat.checkins / stat.participants * 100) : 0}%
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">暂无数据</td></tr>';
+            }
+        })
+        .catch(error => {
+            console.error('加载统计数据失败:', error);
+            document.getElementById('activityStatsBody').innerHTML = 
+                '<tr><td colspan="5" class="text-center text-danger">加载失败，请重试</td></tr>';
+        });
+}
+
+// 刷新数据
+function refreshData() {
+    const button = event.target;
+    const originalText = button.innerHTML;
+    
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>刷新中...';
+    button.disabled = true;
+    
+    loadStatistics();
+    
+    setTimeout(() => {
+        button.innerHTML = originalText;
+        button.disabled = false;
+    }, 1000);
+}
+
+// 页面加载时获取数据
+document.addEventListener('DOMContentLoaded', loadStatistics);
+</script>
+{% endblock %}
